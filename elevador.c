@@ -1,3 +1,5 @@
+#include <Servo.h> 
+
 // Definindo os pinos dos botões
 const int botaoAndar0 = 2;
 const int botaoAndar1 = 3;
@@ -8,8 +10,17 @@ const int ledAndar0 = 8;
 const int ledAndar1 = 9;
 const int ledAndar2 = 10;
 
+// Pino do servo
+const int pinoServo = 12;
+
+// Objeto servo
+Servo servoElevador;
+
 // Variável para guardar o andar atual
 int andarAtual = 0;
+
+// Posições do servo correspondentes a cada andar (ajuste conforme seu projeto)
+int posAndar[3] = {0, 90, 180};
 
 void setup() {
   // Configura os botões como entradas
@@ -21,6 +32,8 @@ void setup() {
   pinMode(ledAndar0, OUTPUT);
   pinMode(ledAndar1, OUTPUT);
   pinMode(ledAndar2, OUTPUT);
+
+  servoElevador.attach(pinoServo);
 
   // Inicia no térreo
   irParaAndar(0);
@@ -56,6 +69,7 @@ void irParaAndar(int destino) {
   // Simula tempo de deslocamento com delay
   if (andarAtual != destino) {
     int tempo = abs(destino - andarAtual) * 1000; // 1 segundo por andar
+    moverServo(andarAtual, destino);
     delay(tempo);
   }
 
@@ -74,4 +88,22 @@ void irParaAndar(int destino) {
 
   // Atualiza o andar atual
   andarAtual = destino;
+}
+
+void moverServo(int origem, int destino) {
+  int posOrigem = posAndar[origem];
+  int posDestino = posAndar[destino];
+
+  // Movimenta suavemente o servo até o destino
+  if (posDestino > posOrigem) {
+    for (int pos = posOrigem; pos <= posDestino; pos++) {
+      servoElevador.write(pos);
+      delay(15);
+    }
+  } else {
+    for (int pos = posOrigem; pos >= posDestino; pos--) {
+      servoElevador.write(pos);
+      delay(15);
+    }
+  }
 }
